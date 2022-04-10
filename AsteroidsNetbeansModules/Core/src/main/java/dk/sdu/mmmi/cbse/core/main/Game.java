@@ -27,7 +27,9 @@ public class Game implements ApplicationListener {
     private final GameData gameData = new GameData();
     private World world = new World();
     private List<IGamePluginService> gamePlugins = new CopyOnWriteArrayList<>();
-    private Lookup.Result<IGamePluginService> result;
+    private Lookup.Result<IGamePluginService> res;
+
+
 
     @Override
     public void create() {
@@ -42,11 +44,11 @@ public class Game implements ApplicationListener {
 
         Gdx.input.setInputProcessor(new GameInputProcessor(gameData));
 
-        result = lookup.lookupResult(IGamePluginService.class);
-        result.addLookupListener(lookupListener);
-        result.allItems();
+        res = lookup.lookupResult(IGamePluginService.class);
+        res.addLookupListener(lookupListener);
+        res.allItems();
 
-        for (IGamePluginService plugin : result.allInstances()) {
+        for (IGamePluginService plugin : res.allInstances()) {
             plugin.start(gameData, world);
             gamePlugins.add(plugin);
         }
@@ -125,7 +127,7 @@ public class Game implements ApplicationListener {
         @Override
         public void resultChanged(LookupEvent le) {
 
-            Collection<? extends IGamePluginService> updated = result.allInstances();
+            Collection<? extends IGamePluginService> updated = res.allInstances();
 
             for (IGamePluginService us : updated) {
                 // Newly installed modules

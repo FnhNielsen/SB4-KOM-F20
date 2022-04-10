@@ -24,7 +24,7 @@ public class AsteroidProcessor implements IEntityProcessingService {
             MovingPart movingPart = asteroid.getPart(MovingPart.class);
             LifePart lifePart = asteroid.getPart(LifePart.class);
 
-            int numPoints = 12;
+            int numPoints = 7;
             float speed = (float) Math.random() * 10f + 20f;
             if (lifePart.getLife() == 1) {
                 numPoints = 8;
@@ -46,17 +46,6 @@ public class AsteroidProcessor implements IEntityProcessingService {
             setShape(asteroid, numPoints);
         }
 
-    }
-
-    /**
-     * Dependency Injection using OSGi Declarative Services
-     */
-    public void setAsteroidSplitter(IAsteroidSplitter asteroidSplitter) {
-        this.asteroidSplitter = asteroidSplitter;
-    }
-
-    public void removeAsteroidSplitter(IAsteroidSplitter asteroidSplitter) {
-        this.asteroidSplitter = null;
     }
 
     private void setShape(Entity entity, int numPoints) {
