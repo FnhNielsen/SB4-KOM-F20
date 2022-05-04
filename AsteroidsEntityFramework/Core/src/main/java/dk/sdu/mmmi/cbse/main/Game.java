@@ -10,14 +10,19 @@ import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
+import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
+import dk.sdu.mmmi.cbse.common.utils.SPILocator;
 import dk.sdu.mmmi.cbse.managers.GameInputProcessor;
 import dk.sdu.mmmi.cbse.playersystem.PlayerControlSystem;
 import dk.sdu.mmmi.cbse.playersystem.PlayerPlugin;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Game
-        implements ApplicationListener {
+        implements ApplicationListener
+{
 
     private static OrthographicCamera cam;
     private ShapeRenderer sr;
@@ -28,7 +33,8 @@ public class Game
     private World world = new World();
 
     @Override
-    public void create() {
+    public void create()
+    {
 
         gameData.setDisplayWidth(Gdx.graphics.getWidth());
         gameData.setDisplayHeight(Gdx.graphics.getHeight());
@@ -49,13 +55,15 @@ public class Game
         entityPlugins.add(playerPlugin);
         entityProcessors.add(playerProcess);
         // Lookup all Game Plugins using ServiceLoader
-        for (IGamePluginService iGamePlugin : entityPlugins) {
+        for (IGamePluginService iGamePlugin : getPluginServices())
+        {
             iGamePlugin.start(gameData, world);
         }
     }
 
     @Override
-    public void render() {
+    public void render()
+    {
 
         // clear screen to black
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -70,15 +78,23 @@ public class Game
         gameData.getKeys().update();
     }
 
-    private void update() {
+    private void update()
+    {
         // Update
-        for (IEntityProcessingService entityProcessorService : entityProcessors) {
+        for (IEntityProcessingService entityProcessorService : getEntityProcessingServices())
+        {
             entityProcessorService.process(gameData, world);
+        }
+        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices())
+        {
+            postEntityProcessorService.process(gameData, world);
         }
     }
 
-    private void draw() {
-        for (Entity entity : world.getEntities()) {
+    private void draw()
+    {
+        for (Entity entity : world.getEntities())
+        {
 
             sr.setColor(1, 1, 1, 1);
 
@@ -88,8 +104,9 @@ public class Game
             float[] shapey = entity.getShapeY();
 
             for (int i = 0, j = shapex.length - 1;
-                    i < shapex.length;
-                    j = i++) {
+                 i < shapex.length;
+                 j = i++)
+            {
 
                 sr.line(shapex[i], shapey[i], shapex[j], shapey[j]);
             }
@@ -99,18 +116,37 @@ public class Game
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(int width, int height)
+    {
     }
 
     @Override
-    public void pause() {
+    public void pause()
+    {
     }
 
     @Override
-    public void resume() {
+    public void resume()
+    {
     }
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
+    }
+
+    private Collection<? extends IGamePluginService> getPluginServices()
+    {
+        return SPILocator.locateAll(IGamePluginService.class);
+    }
+
+    private Collection<? extends IEntityProcessingService> getEntityProcessingServices()
+    {
+        return SPILocator.locateAll(IEntityProcessingService.class);
+    }
+
+    private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices()
+    {
+        return SPILocator.locateAll(IPostEntityProcessingService.class);
     }
 }
